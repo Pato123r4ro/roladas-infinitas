@@ -1,6 +1,7 @@
 # Roladas Infinitas
+
 ## Objetivos
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Atualizar um código já existente de um sistema sobre rolar dados, simples.
 
 ### Stack Tecnlógico
 - Backend: PHP estruturado com sessões nativas
@@ -8,8 +9,9 @@ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 - Frontend: HTML5, PHP, CSS, Tailwind CSS
 
 #### Regras de negócio (CORE)
-
-aaaaaaaaaaaaaaaaaaaaaaa
+Rolar números inteiros(ex:4, 6, 8, 10, 20, 100)
+Definir que um usuário só pode rolar no mínimo \(1\) dado e no máximo \(50\) dados por vez (para evitar travamento do servidor ou trapaças).
+Pegar os resultados individuais de cada dado, somá-los e gerar um valor "Total".
 
 Tratar senhas de usuários com hash bcript
 O sistema deve ter uma página de históricos e manter sempre os logs de qualquer alteração feita por qualquer usuário, para auditorias futuras.
