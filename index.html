@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎲 Roladas Infinitas - Sistema de Rolagem de RPG</title>
+  <meta name="description" content="Aplicativo moderno, autônomo e customizável de rolagem de dados para RPG de mesa (TTRPG).">
+  <!-- Fonts (Google Fonts online + offline fallbacks) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-arcane">
+
+  <!-- Canvas para Confetes de Sucesso Crítico (Nat 20) -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Cabeçalho Principal -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-icon">🎲</span>
+      <div>
+        <h1 class="brand-title">Roladas Infinitas</h1>
+        <div class="brand-subtitle">Sistema de Rolagem de RPG</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Seletor de Temas Visuais -->
+      <select id="theme-select" class="control-select" title="Escolha o tema visual">
+        <option value="arcane">🔮 Mago Arcano</option>
+        <option value="dungeon">⚔️ Masmorra Clássica</option>
+        <option value="parchment">📜 Pergaminho Antigo</option>
+        <option value="cyberpunk">🌌 Cyberpunk Neon</option>
+        <option value="forest">🌲 Floresta Élfica</option>
+      </select>
+
+      <!-- Botão de Alternar Som -->
+      <button id="sound-toggle-btn" class="icon-btn" title="Alternar efeitos sonoros">
+        🔊 Som Ativo
+      </button>
+    </div>
+  </header>
+
+  <!-- Abas de Navegação -->
+  <div class="nav-tabs-container">
+    <nav class="nav-tabs">
+      <button class="nav-tab-btn active" data-tab="tray">
+        <span>🎲</span> Mesa de Rolagem
+      </button>
+      <button class="nav-tab-btn" data-tab="macros">
+        <span>⚔️</span> Botões & Macros
+      </button>
+      <button class="nav-tab-btn" data-tab="tables">
+        <span>📜</span> Tabelas Aleatórias
+      </button>
+      <button class="nav-tab-btn" data-tab="history">
+        <span>📊</span> Histórico & Estatísticas
+      </button>
+      <button class="nav-tab-btn" data-tab="settings">
+        <span>⚙️</span> Configurações & Backup
+      </button>
+    </nav>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <main class="app-content">
+
+    <!-- ============================================== -->
+    <!-- ABA 1: MESA DE ROLAGEM (DICE TRAY) -->
+    <!-- ============================================== -->
+    <section id="tab-tray" class="tab-pane active">
+      <div class="dice-tray-grid">
+        
+        <!-- Coluna da Esquerda: Controles de Rolagem & Arena Visual -->
+        <div class="card">
+          <div class="card-title">
+            <span>🎲 Seleção Rápida de Dados</span>
+            <span class="badge">Clique esquerdo: +1 | Botão direito: -1</span>
+          </div>
+
+          <!-- Seleção Rápida de Dados Poliédricos -->
+          <div class="dice-selector">
+            <button class="die-btn" data-sides="4" title="d4: Tetraedro (Botão direito subtrai)">
+              <span class="die-icon">▲</span>
+              <span class="die-label">d4</span>
+              <span class="die-count-badge">0</span>
+            </button>
+            <button class="die-btn" data-sides="6" title="d6: Cubo (Botão direito subtrai)">
+              <span class="die-icon">⚅</span>
+              <span class="die-label">d6</span>
+              <span class="die-count-badge">0</span>
+            </button>
+            <button class="die-btn" data-sides="8" title="d8: Octaedro (Botão direito subtrai)">
+              <span class="die-icon">◆</span>
+              <span class="die-label">d8</span>
+              <span class="die-count-badge">0</span>
+            </button>
+            <button class="die-btn" data-sides="10" title="d10: Decaedro (Botão direito subtrai)">
+              <span class="die-icon">⬟</span>
+              <span class="die-label">d10</span>
+              <span class="die-count-badge">0</span>
+            </button>
+            <button class="die-btn" data-sides="12" title="d12: Dodecaedro (Botão direito subtrai)">
+              <span class="die-icon">⬢</span>
+              <span class="die-label">d12</span>
+              <span class="die-count-badge">0</span>
+            </button>
+            <button class="die-btn" data-sides="20" title="d20: Icosaedro (Botão direito subtrai)">
+              <span class="die-icon">⬡</span>
+              <span class="die-label">d20</span>
+              <span class="die-count-badge">0</span>
+            </button>
+            <button class="die-btn" data-sides="100" title="d100: Percentual (Botão direito subtrai)">
+              <span class="die-icon">💯</span>
+              <span class="die-label">d100</span>
+              <span class="die-count-badge">0</span>
+            </button>
+          </div>
+
+          <!-- Barra de Ajuste de Modificadores e Limpeza -->
+          <div class="pool-builder-bar">
+            <div style="font-size: 0.85rem; color: var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+              <span>Modificador Numérico:</span>
+            </div>
+            <div class="pool-controls">
+              <div class="mod-control">
+                <button id="mod-minus-btn" class="mod-btn" title="Diminuir modificador">-</button>
+                <input type="number" id="mod-input" class="mod-input" value="0" aria-label="Modificador">
+                <button id="mod-plus-btn" class="mod-btn" title="Aumentar modificador">+</button>
+              </div>
+              <button id="clear-pool-btn" class="icon-btn" title="Zerar dados e modificador">
+                🧹 Limpar
+              </button>
+            </div>
+          </div>
+
+          <!-- Atalhos Rápidos de Vantagem / Desvantagem -->
+          <div class="quick-modifiers">
+            <div class="toggle-chip adv-chip" data-mode="adv" title="Rola 2d20 e mantém o maior (Keep Highest)">
+              ⭐ Vantagem (2d20kh1)
+            </div>
+            <div class="toggle-chip adv-chip" data-mode="disadv" title="Rola 2d20 e mantém o menor (Keep Lowest)">
+              🔻 Desvantagem (2d20kl1)
+            </div>
+          </div>
+
+          <!-- Barra da Fórmula de Rolagem -->
+          <div class="formula-bar-container">
+            <div class="formula-input-wrapper">
+              <input type="text" id="formula-input" class="formula-input" placeholder="Ex: 1d20+5, 4d6dl1, 8d6, 6d10>=6..." value="1d20" aria-label="Fórmula de rolagem">
+            </div>
+            <button id="main-roll-btn" class="roll-btn-primary">
+              <span>🎲</span> Rolar Dados
+            </button>
+          </div>
+
+          <!-- Arena de Rolagem Visual com Modelo 3D e Efeitos de Crítico -->
+          <div id="dice-arena" class="dice-arena">
+            <!-- Palco do Modelo 3D Interativo -->
+            <div class="dice-3d-wrapper" id="dice-3d-wrapper">
+              <div class="dice-3d-controls">
+                <span class="dice-3d-badge">Modelo 3D Studio</span>
+                <div class="dice-3d-chips" id="dice-3d-chips">
+                  <button type="button" class="d3d-chip" data-sides="4" title="Exibir d4 (Tetraedro Chanfrado) em 3D">d4</button>
+                  <button type="button" class="d3d-chip" data-sides="6" title="Exibir d6 (Cubo Chanfrado) em 3D">d6</button>
+                  <button type="button" class="d3d-chip" data-sides="8" title="Exibir d8 (Octaedro Chanfrado) em 3D">d8</button>
+                  <button type="button" class="d3d-chip" data-sides="10" title="Exibir d10 (Decaedro Chanfrado) em 3D">d10</button>
+                  <button type="button" class="d3d-chip" data-sides="12" title="Exibir d12 (Dodecaedro Chanfrado) em 3D">d12</button>
+                  <button type="button" class="d3d-chip active" data-sides="20" title="Exibir d20 (Icosaedro Chanfrado) em 3D">d20</button>
+                  <button type="button" class="d3d-chip" data-sides="100" title="Exibir d100 (2x d10: Dezenas e Unidades) em 3D">d100 (2x d10)</button>
+                </div>
+                <button type="button" class="d3d-style-btn" id="d6-style-toggle" title="Alternar estilo do d6 entre Pips 3D Clássicos (⚅) e Números RPG (6)">
+                  ⚅ d6: Pips 3D
+                </button>
+              </div>
+              <div class="dice-3d-stage-box" id="dice-3d-stage-box">
+                <canvas id="dice-3d-canvas" width="420" height="280" title="Arraste para girar em 3D ou clique para rolar!"></canvas>
+                <div class="dice-3d-tooltip">Arraste para inspecionar o modelo 3D • Clique no dado para rolar</div>
+              </div>
+            </div>
+
+            <!-- Área de Exibição dos Resultados da Rolagem -->
+            <div id="dice-result-container" class="dice-result-container">
+              <div class="arena-placeholder">
+                <span class="icon">✨</span>
+                <p>Clique em <strong>Rolar Dados</strong> ou no <strong>dado 3D</strong> acima para iniciar!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna da Direita: Histórico Rápido na Mesa -->
+        <div class="card">
+          <div class="card-title">
+            <span>📜 Histórico Recente</span>
+            <div style="display: flex; gap: 0.4rem;">
+              <button id="copy-history-btn" class="icon-btn" title="Copiar Histórico">📋 Copiar</button>
+              <button id="clear-history-btn" class="icon-btn" title="Limpar Histórico">🗑️ Limpar</button>
+            </div>
+          </div>
+          <div id="history-list" class="history-list"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- ABA 2: BOTÕES & MACROS CUSTOMIZÁVEIS -->
+    <!-- ============================================== -->
+    <section id="tab-macros" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>⚔️ Botões & Rolagens Customizadas</span>
+          <button id="open-new-macro-btn" class="btn-primary">➕ Novo Botão</button>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.25rem;">
+          Crie e organize botões rápidos de ataque, magias, perícias e danos para sua ficha de personagem ou monstros.
+        </p>
+
+        <!-- Barra de Busca e Filtros de Categoria -->
+        <div class="macros-toolbar">
+          <input type="text" id="macro-search-input" class="search-input" placeholder="🔍 Buscar rolagem por nome...">
+          <div id="category-filter-chips" class="category-filter-chips"></div>
+        </div>
+
+        <!-- Grade de Cartões de Macros -->
+        <div id="macros-grid" class="macros-grid"></div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- ABA 3: TABELAS ALEATÓRIAS (ROLL TABLES) -->
+    <!-- ============================================== -->
+    <section id="tab-tables" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <div>
+            <div style="font-size:1.35rem;font-weight:700;">📜 Tabelas Aleatórias de RPG</div>
+            <div style="color:var(--text-muted);font-size:0.85rem;font-weight:normal;margin-top:0.25rem;">
+              Sorteie encontros, saques, perigos e eventos inesperados durante suas sessões de jogo.
+            </div>
+          </div>
+          <button id="open-new-table-btn" class="btn-primary">➕ Nova Tabela</button>
+        </div>
+
+        <!-- Grade de Tabelas -->
+        <div id="tables-grid" class="tables-grid" style="margin-top:1.5rem;"></div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- ABA 4: HISTÓRICO COMPLETO & ESTATÍSTICAS -->
+    <!-- ============================================== -->
+    <section id="tab-history" class="tab-pane">
+      <!-- Painel de Estatísticas -->
+      <div class="stats-summary-grid">
+        <div class="stat-box">
+          <div id="stat-total-rolls" class="stat-val">0</div>
+          <div class="stat-label">Total de Rolagens</div>
+        </div>
+        <div class="stat-box">
+          <div id="stat-avg-roll" class="stat-val">0</div>
+          <div class="stat-label">Média Geral</div>
+        </div>
+        <div class="stat-box">
+          <div id="stat-highest-roll" class="stat-val">0</div>
+          <div class="stat-label">Maior Resultado</div>
+        </div>
+        <div class="stat-box">
+          <div id="stat-crits-count" class="stat-val">0</div>
+          <div class="stat-label">Sucessos Críticos (Nat 20)</div>
+        </div>
+      </div>
+
+      <!-- Guia de Sintaxe das Fórmulas Suportadas -->
+      <div class="card">
+        <div class="card-title">
+          <span>📖 Guia de Fórmulas e Notações Aceitas</span>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.9rem;">
+          Você pode combinar qualquer uma dessas notações diretamente no campo de fórmula ou nos seus botões customizados:
+        </p>
+        <div class="syntax-table-wrapper">
+          <table class="syntax-table">
+            <thead>
+              <tr>
+                <th>Sintaxe</th>
+                <th>Descrição</th>
+                <th>Exemplo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>XdY</code></td>
+                <td>Rola X dados de Y faces poliédricas</td>
+                <td><code>3d6</code>, <code>1d20</code>, <code>1d100</code></td>
+              </tr>
+              <tr>
+                <td><code>khN</code></td>
+                <td>Mantém os N maiores dados (<em>Keep Highest</em>)</td>
+                <td><code>2d20kh1</code> (Vantagem no D&D 5e)</td>
+              </tr>
+              <tr>
+                <td><code>klN</code></td>
+                <td>Mantém os N menores dados (<em>Keep Lowest</em>)</td>
+                <td><code>2d20kl1</code> (Desvantagem no D&D 5e)</td>
+              </tr>
+              <tr>
+                <td><code>dlN</code></td>
+                <td>Descarta os N menores dados (<em>Drop Lowest</em>)</td>
+                <td><code>4d6dl1</code> (Atributos de D&D)</td>
+              </tr>
+              <tr>
+                <td><code>dhN</code></td>
+                <td>Descarta os N maiores dados (<em>Drop Highest</em>)</td>
+                <td><code>4d6dh1</code></td>
+              </tr>
+              <tr>
+                <td><code>!</code></td>
+                <td>Dado Explosivo (rola outro dado se tirar o valor máximo da face)</td>
+                <td><code>3d6!</code></td>
+              </tr>
+              <tr>
+                <td><code>>=N</code> ou <code>>N</code></td>
+                <td>Contagem de sucessos para sistemas Storyteller / WoD / Vampire</td>
+                <td><code>6d10>=6</code></td>
+              </tr>
+              <tr>
+                <td><code>dF</code></td>
+                <td>Dados FATE / Fudge (-1, 0, +1)</td>
+                <td><code>4dF + 2</code></td>
+              </tr>
+              <tr>
+                <td><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code></td>
+                <td>Operações matemáticas aritméticas e bônus fixos</td>
+                <td><code>1d20 + 7</code>, <code>2d6 * 2</code></td>
+              </tr>
+              <tr>
+                <td><code># Motivo</code></td>
+                <td>Adiciona um rótulo explicativo que é registrado no histórico</td>
+                <td><code>1d20 + 5 # Ataque Adaga</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- ABA 5: CONFIGURAÇÕES & BACKUP -->
+    <!-- ============================================== -->
+    <section id="tab-settings" class="tab-pane">
+      <div class="settings-grid">
+        
+        <!-- Configurações de Áudio -->
+        <div class="card">
+          <div class="card-title">
+            <span>🔊 Áudio & Sons Sintetizados</span>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Efeitos Sonoros</span>
+              <span class="setting-desc">Emite sons sintéticos de dados e fanfarras de crítico via Web Audio API.</span>
+            </div>
+            <input type="checkbox" id="setting-sound-enabled" checked aria-label="Habilitar som">
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Volume do Áudio</span>
+              <span class="setting-desc">Ajuste o volume geral dos efeitos sonoros.</span>
+            </div>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" aria-label="Volume">
+          </div>
+        </div>
+
+        <!-- Backup & Restauração -->
+        <div class="card">
+          <div class="card-title">
+            <span>💾 Backup & Compartilhamento</span>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Exportar Backup</span>
+              <span class="setting-desc">Gera um arquivo JSON com todas as suas rolagens, tabelas e configurações.</span>
+            </div>
+            <button id="export-backup-btn" class="btn-primary">
+              <span>💾</span> Exportar JSON
+            </button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Importar Backup</span>
+              <span class="setting-desc">Carregue um arquivo JSON gerado anteriormente.</span>
+            </div>
+            <label class="btn-secondary" style="cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>📂</span> Carregar JSON
+              <input type="file" id="import-backup-input" accept=".json" style="display:none;">
+            </label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Redefinir Dados</span>
+              <span class="setting-desc">Restaura todas as configurações, botões e tabelas para os padrões de fábrica.</span>
+            </div>
+            <button id="reset-defaults-btn" class="btn-secondary" style="color:var(--crit-fail); border-color:var(--crit-fail);">
+              ⚠️ Restaurar Padrões
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL: CRIAR / EDITAR MACRO -->
+  <!-- ============================================== -->
+  <div id="macro-modal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="macro-modal-title" class="modal-title">Criar Nova Rolagem Customizada</h3>
+        <button type="button" id="close-macro-modal-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="macro-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="macro-name-input">Nome da Rolagem *</label>
+            <input type="text" id="macro-name-input" class="form-input" placeholder="Ex: Bola de Fogo, Ataque Furtivo..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="macro-formula-input">Fórmula do Dado *</label>
+            <input type="text" id="macro-formula-input" class="form-input" placeholder="Ex: 8d6, 1d20+7, 2d20kh1+5..." required>
+            <span class="form-help">Suporta kh, kl, dl, dh, dados explosivos (!), sucessos (>=) e operações matemáticas.</span>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 100px; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label" for="macro-category-input">Categoria</label>
+              <input type="text" id="macro-category-input" class="form-input" placeholder="Ex: Ataque, Magia, Perícia..." value="Geral">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="macro-icon-input">Ícone / Emoji</label>
+              <input type="text" id="macro-icon-input" class="form-input" value="⚔️" style="text-align:center;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="macro-desc-input">Descrição Opcional</label>
+            <textarea id="macro-desc-input" class="form-textarea" rows="2" placeholder="Detalhes, dano adicional ou regras da habilidade..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancel-macro-modal-btn" class="btn-secondary">Cancelar</button>
+          <button type="submit" class="btn-primary">Salvar Rolagem</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: CRIAR NOVA TABELA ALEATÓRIA -->
+  <!-- ============================================== -->
+  <div id="table-modal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Criar Nova Tabela Aleatória</h3>
+        <button type="button" id="close-table-modal-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="table-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="table-name-input">Nome da Tabela *</label>
+            <input type="text" id="table-name-input" class="form-input" placeholder="Ex: Rumores na Taverna, Clima..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="table-formula-input">Dado de Sorteio *</label>
+            <input type="text" id="table-formula-input" class="form-input" placeholder="Ex: 1d6, 1d8, 1d20, 1d100..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="table-desc-input">Descrição da Tabela</label>
+            <input type="text" id="table-desc-input" class="form-input" placeholder="Ex: O que o estalajadeiro comenta com o grupo...">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="table-entries-input">Entradas da Tabela (Intervalo : Descrição) *</label>
+            <textarea id="table-entries-input" class="form-textarea" rows="7" placeholder="1 : Bandidos vigiam os viajantes&#10;2-3 : Tempestade se aproxima no horizonte&#10;4-5 : Um bardo canta sobre um tesouro na colina&#10;6 : Soldados reais chegam à procura de um fugitivo" required></textarea>
+            <span class="form-help">Digite uma opção por linha no formato: <code>Número : Descrição</code> ou <code>Início-Fim : Descrição</code></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancel-table-modal-btn" class="btn-secondary">Cancelar</button>
+          <button type="submit" class="btn-primary">Salvar Tabela</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
